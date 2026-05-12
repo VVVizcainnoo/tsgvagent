@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Query to run through Step 1"
+        required: false
+        default: "person is smiling"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run tests
+        run: python -m unittest discover -s tests
+
+      - name: Run Step 1 query
+        run: python -m video_moment_agent induce "${{ github.event.inputs.query || 'person is smiling' }}"
+
+      - name: Run demo trace search
+        run: python -m video_moment_agent locate examples/fridge_trace.json "take milk from fridge"
