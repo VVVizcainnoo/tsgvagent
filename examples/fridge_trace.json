@@ -1,0 +1,53 @@
+{
+  "video_id": "demo-fridge",
+  "states": [
+    {
+      "t": 0.0,
+      "state": {
+        "fridge.state": "closed",
+        "milk.loc": "inside",
+        "person.hand": "empty"
+      }
+    },
+    {
+      "t": 1.0,
+      "state": {
+        "fridge.state": "closed",
+        "milk.loc": "inside",
+        "person.hand": "empty"
+      }
+    },
+    {
+      "t": 2.0,
+      "state": {
+        "fridge.state": "open",
+        "milk.loc": "inside",
+        "person.hand": "empty"
+      }
+    },
+    {
+      "t": 3.0,
+      "state": {
+        "fridge.state": "open",
+        "milk.loc": "outside",
+        "person.hand": "milk"
+      }
+    },
+    {
+      "t": 4.0,
+      "state": {
+        "fridge.state": "open",
+        "milk.loc": "outside",
+        "person.hand": "milk"
+      }
+    },
+    {
+      "t": 5.0,
+      "state": {
+        "fridge.state": "closed",
+        "milk.loc": "outside",
+        "person.hand": "milk"
+      }
+    }
+  ]
+}
