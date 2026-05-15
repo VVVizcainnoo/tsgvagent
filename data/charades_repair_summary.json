@@ -1,0 +1,33 @@
+{
+  "source_json": "/Users/houkainuo.1/Downloads/charades_sta_test-QM.json",
+  "local_repaired_json": "runs/charades_sta_test-QM.repaired.json",
+  "local_changes_jsonl": "runs/charades_unknown_query_repairs.jsonl",
+  "changed_count": 2609,
+  "note": "Repairs target queries that the legacy rule Step1 parser classified as unknown_event or malformed natural-language query patterns. The full repaired JSON is generated locally because it is too large to pass through the current GitHub connector as a tool argument.",
+  "examples": [
+    {
+      "video_id": "3MSZA",
+      "id": "3MSZA-0006",
+      "old_sentence": "person adjust the light switch.",
+      "new_sentence": "person adjusts the light switch."
+    },
+    {
+      "video_id": "3MSZA",
+      "id": "3MSZA-0011",
+      "old_sentence": "person is keys.",
+      "new_sentence": "person uses keys."
+    },
+    {
+      "video_id": "9JZO2",
+      "id": "9JZO2-0052",
+      "old_sentence": "person start pillow.",
+      "new_sentence": "person starts using pillow."
+    },
+    {
+      "video_id": "4J1AP",
+      "id": "C6C7Q-1001",
+      "old_sentence": "person they flip on a nightstand light.",
+      "new_sentence": "person flips a nightstand light."
+    }
+  ]
+}
