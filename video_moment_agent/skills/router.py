@@ -142,6 +142,17 @@ class RouterSkill:
         ):
             reasons.append("risk_query_verb")
 
+        transition_types = {
+            "state_transition",
+            "interaction_transition",
+            "relation_transition",
+            "action_event",
+            "unknown_event",
+        }
+        try:
+            pred_start = float(row["pred_start"])
+        except (KeyError, TypeError, ValueError):
+            pred_start = 0.0
         weak_reasons = {
             "normal_error",
             "degenerate_interval",
@@ -154,9 +165,13 @@ class RouterSkill:
             "coarse_uncertain",
             "sparse_evidence",
         }
-        # Risk tags are useful diagnostics, but triggering hard mode on them
-        # alone makes nearly every manipulation query pay for a dense rerun.
-        return bool(set(reasons) & weak_reasons), reasons
+        risk_late_transition = (
+            {"risk_requirement_type", "risk_query_verb"}.issubset(reasons)
+            and bool(types & transition_types)
+            and pred_start >= 12.0
+            and duration <= 16.0
+        )
+        return bool((set(reasons) & weak_reasons) or risk_late_transition), reasons
 
     def choose(self, normal: dict[str, Any], hard: dict[str, Any] | None = None) -> tuple[dict[str, Any], RouterDecision]:
         normal_score = self.routing_quality(normal)
@@ -164,7 +179,13 @@ class RouterSkill:
             return normal, RouterDecision(selected="normal", normal_score=normal_score, margin=self.hard_margin)
 
         hard_score = self.routing_quality(hard)
+        try:
+            hard_starts_earlier = float(hard["pred_start"]) + 1.0 <= float(normal["pred_start"])
+        except (KeyError, TypeError, ValueError):
+            hard_starts_earlier = False
         choose_hard = hard_score >= normal_score + self.hard_margin
+        if hard_starts_earlier and hard_score >= normal_score - 0.2:
+            choose_hard = True
         selected = hard if choose_hard else normal
         decision = RouterDecision(
             selected="hard" if choose_hard else "normal",
