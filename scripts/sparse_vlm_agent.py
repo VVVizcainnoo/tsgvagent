@@ -6,6 +6,7 @@ import json
 import math
 import os
 import re
+import sys
 import time
 import urllib.request
 import urllib.error
@@ -14,6 +15,7 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from video_moment_agent.skills import RouterSkill
 
 
