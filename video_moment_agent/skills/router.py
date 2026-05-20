@@ -141,7 +141,22 @@ class RouterSkill:
             for word in ["put", "puts", "take", "takes", "open", "close", "closes", "smil", "laugh", "drink"]
         ):
             reasons.append("risk_query_verb")
-        return bool(reasons), reasons
+
+        weak_reasons = {
+            "normal_error",
+            "degenerate_interval",
+            "very_short_interval",
+            "low_routing_quality",
+            "boundary_too_short",
+            "boundary_too_long",
+            "boundary_uncertain",
+            "verifier_failed",
+            "coarse_uncertain",
+            "sparse_evidence",
+        }
+        # Risk tags are useful diagnostics, but triggering hard mode on them
+        # alone makes nearly every manipulation query pay for a dense rerun.
+        return bool(set(reasons) & weak_reasons), reasons
 
     def choose(self, normal: dict[str, Any], hard: dict[str, Any] | None = None) -> tuple[dict[str, Any], RouterDecision]:
         normal_score = self.routing_quality(normal)
