@@ -49,6 +49,25 @@ class SkillTest(unittest.TestCase):
         self.assertEqual("normal", decision.selected)
         self.assertLess(decision.hard_score - decision.normal_score, 0.5)
 
+    def test_router_allows_earlier_hard_when_scores_are_close(self):
+        router = RouterSkill(hard_margin=0.5)
+        normal = {
+            "pred_start": 16.0,
+            "pred_end": 24.0,
+            "fine": {"confidence": 0.8, "matched_evidence": ["#1 t=16.0s", "#2 t=20.0s"]},
+            "verifier": {"checks": {"complete": True, "temporal_order_ok": True, "same_event": True, "boundary_quality": "tight"}},
+        }
+        hard = {
+            "pred_start": 12.0,
+            "pred_end": 17.0,
+            "fine": {"confidence": 0.75, "matched_evidence": ["#1 t=12.0s", "#2 t=15.0s"]},
+            "verifier": {"checks": {"complete": True, "temporal_order_ok": True, "same_event": True, "boundary_quality": "tight"}},
+        }
+
+        _, decision = router.choose(normal, hard)
+
+        self.assertEqual("hard", decision.selected)
+
     def test_router_does_not_trigger_hard_on_risk_tags_only(self):
         router = RouterSkill()
         row = {
@@ -64,6 +83,24 @@ class SkillTest(unittest.TestCase):
         triggered, reasons = router.should_hard(row, program)
 
         self.assertFalse(triggered)
+        self.assertIn("risk_requirement_type", reasons)
+        self.assertIn("risk_query_verb", reasons)
+
+    def test_router_triggers_hard_for_late_risky_transition(self):
+        router = RouterSkill()
+        row = {
+            "query": "person takes a cup.",
+            "pred_start": 16.0,
+            "pred_end": 24.0,
+            "fine": {"confidence": 1.0, "matched_evidence": ["#1 t=16.0s", "#2 t=20.0s", "#3 t=23.0s"]},
+            "coarse": {"relevant": True},
+            "verifier": {"checks": {"complete": True, "temporal_order_ok": True, "same_event": True, "boundary_quality": "tight"}},
+        }
+        program = {"requirements": [{"type": "interaction_transition"}]}
+
+        triggered, reasons = router.should_hard(row, program)
+
+        self.assertTrue(triggered)
         self.assertIn("risk_requirement_type", reasons)
         self.assertIn("risk_query_verb", reasons)
 
