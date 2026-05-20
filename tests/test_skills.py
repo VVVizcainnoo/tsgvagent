@@ -49,6 +49,24 @@ class SkillTest(unittest.TestCase):
         self.assertEqual("normal", decision.selected)
         self.assertLess(decision.hard_score - decision.normal_score, 0.5)
 
+    def test_router_does_not_trigger_hard_on_risk_tags_only(self):
+        router = RouterSkill()
+        row = {
+            "query": "person takes a cup.",
+            "pred_start": 1.0,
+            "pred_end": 8.0,
+            "fine": {"confidence": 1.0, "matched_evidence": ["#1 t=1.0s", "#2 t=3.0s", "#3 t=5.0s"]},
+            "coarse": {"relevant": True},
+            "verifier": {"checks": {"complete": True, "temporal_order_ok": True, "same_event": True, "boundary_quality": "tight"}},
+        }
+        program = {"requirements": [{"type": "interaction_transition"}]}
+
+        triggered, reasons = router.should_hard(row, program)
+
+        self.assertFalse(triggered)
+        self.assertIn("risk_requirement_type", reasons)
+        self.assertIn("risk_query_verb", reasons)
+
 
 if __name__ == "__main__":
     unittest.main()
