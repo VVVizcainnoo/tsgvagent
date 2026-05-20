@@ -16,15 +16,17 @@ The agent is still training-free. It is a rule + API workflow:
 
 ## Current 50-Video Result
 
-Formal auto-router result after error rerun:
+Recent automatic results on 50 videos / 125 queries:
 
 | Setting | Queries | mIoU | R@0.3 | R@0.5 | R@0.7 | Errors | Hard Triggered | Hard Selected |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | auto-router + error rerun | 125 | 0.4179 | 0.6240 | 0.4640 | 0.1920 | 5 | 98 | 22 |
+| margin=0.5 fresh rerun | 125 | 0.4384 | 0.6240 | 0.4800 | 0.2400 | 4 | 101 | 9 |
+| margin=0.5 + error fix overlay | 125 | 0.4463 | 0.6320 | 0.4880 | 0.2400 | 0 | 103 | 9 |
 
-This is the current automatic MVP baseline. It is useful, but it should not be
-treated as the final full-run setup because the hard-mode trigger rate is too
-high.
+The latest overlay removes API/JSON errors and gets close to the 0.45 target.
+The next fresh rerun should use the updated `RouterSkill`, where risk tags are
+logged but no longer trigger hard mode by themselves.
 
 ## Runner Pieces
 
@@ -33,6 +35,17 @@ high.
   exports an error queue, and reports mIoU / recall metrics.
 - `scripts/tune_router_offline.py`: tests normal-vs-hard routing margins using
   stored candidates without calling the VLM again.
+
+## Failure Notes
+
+For the margin=0.5 run, the main low-IoU categories were:
+
+- partial overlap / shifted boundary: 16
+- predicted too late or wrong later event: 12
+- predicted too early or wrong earlier event: 9
+- API or JSON error: 4, fixed by rerun overlay
+- boundary too short: 4
+- boundary too long: 2
 
 ## Next Upgrade
 
